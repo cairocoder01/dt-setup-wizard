@@ -85,6 +85,7 @@ class Disciple_Tools_Setup_Wizard_Tab
             ?>
                 <li>
                   <a href="<?php echo esc_attr( $link ) . esc_html( $key ) ?>"><?php echo esc_html( $item->name ) ?></a>
+                  <a href="<?php echo esc_attr( $link ) . esc_html( $key ) ?>"><?php echo esc_html( $item->name ) ?></a>
                 </li>
             <?php
         }
