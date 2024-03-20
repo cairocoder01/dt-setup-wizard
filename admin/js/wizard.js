@@ -1,7 +1,6 @@
 function sendApiRequest(endpoint, data, basePath) {
   const formData = new FormData();
   buildFormData(formData, data);
-
   return fetch(`/wp-json/${basePath ?? 'dt-core/v1'}${endpoint}`, {
     method: 'POST',
     body: formData,
@@ -10,7 +9,6 @@ function sendApiRequest(endpoint, data, basePath) {
     }
   }).then((response) => response.json());
 }
-
 function buildFormData (formData, data, parentKey) {
   if (data && typeof data === 'object' && !(data instanceof Date) && !(data instanceof File)) {
     Object.keys(data).forEach(key => {
@@ -18,11 +16,14 @@ function buildFormData (formData, data, parentKey) {
     });
   } else {
     const value = data == null ? '' : data;
-
     formData.append(parentKey, value);
   }
 };
-
+function loopInstallPlugins(plugins) {
+  for (plugin of plugins) {
+    install(plugin);
+  }
+}
 function install(pluginUrl) {
   const isDtPlugin = pluginUrl.includes('http') || pluginUrl.includes('/');
   const slug = isDtPlugin
@@ -51,7 +52,6 @@ function install(pluginUrl) {
     body.append('status', 'active');
     // console.log(window.wpApiSettings);
     const url = `${window.wpApiSettings.root}${window.wpApiSettings.versionString}plugins`;
-
     fetch(url, {
       method: 'POST',
       body,
@@ -69,7 +69,6 @@ function install(pluginUrl) {
       });
   }
 }
-
 function activate(pluginSlug) {
   console.log('activating: ' + pluginSlug);
   showMessage(`Activating: ${pluginSlug}`);
@@ -87,7 +86,11 @@ function activate(pluginSlug) {
       showMessage(`Error activating plugin ${pluginSlug}`, 'error');
     });
 }
-
+function loopCreateUsers(users) {
+  for (user of users) {
+    createUser(user);
+  }
+}
 function createUser(user) {
   console.log('creating user: ', user);
   showMessage(`Creating user: ${user.username}`);
@@ -105,7 +108,6 @@ function createUser(user) {
       showMessage(`Error creating user: ${user.username}`, 'error');
     });
 }
-
 function setOption(option) {
   console.log('setting option: ', option);
   showMessage(`Setting option: ${option.key}`);
@@ -119,7 +121,54 @@ function setOption(option) {
       showMessage(`Error setting option: ${option.key}`, 'error');
     });
 }
-
+function onClickOptionButton(event) {
+  if (event){
+    event.preventDefault();
+  }
+  var formData = new FormData(event.target, event.submitter);
+  const button = formData.get('button');
+  if (button !== 'all') {
+  	try {
+      setOption(
+        {
+          "key":button,
+          "value":formData.get(button)
+        }
+      );
+    } catch (error) {
+      console.error(error);
+      showMessage('Error setting option', 'error');
+    }
+  } else{
+    for (entry of formData.entries()) {
+      try {
+        if (entry.value !== 'all') {
+          setOption(
+            {
+              "key":entry[0],
+              "value":entry[1]
+            }
+          );
+        }
+      } catch (error) {
+        console.error(error);
+        showMessage('Error setting option', 'error');
+      }
+    }
+  }
+}
+function loopSetOptions(event) {
+  var button = event.target;
+  var options = button.dataset.options;
+  for (option of options) {
+    try {
+      setOption(option);
+    } catch (error) {
+      console.error(error);
+      showMessage('Error setting option', 'error');
+    }
+  }
+}
 function advancedConfigSubmit(evt) {
     if (evt) {
       evt.preventDefault();
@@ -131,40 +180,33 @@ function advancedConfigSubmit(evt) {
       showMessage('Config value is required', 'error');
       return;
     }
-
     try {
       // console.log(configRaw);
       const config = JSON.parse(configRaw);
-
       processConfig(config);
     } catch (error) {
       console.error(error);
       showMessage('Could not parse config JSON', 'error');
     }
 }
-
 function processConfig(config) {
   // console.log('Processing: ', config);
-
   if (config.plugins) {
     for (plugin of config.plugins) {
       install(plugin);
     }
   }
-
   if (config.users) {
     for (user of config.users) {
       createUser(user);
     }
   }
-
   if (config.options) {
     for (option of config.options) {
       setOption(option);
     }
   }
 }
-
 function settingsConfigSubmit(evt) {
   if (evt) {
     evt.preventDefault();
@@ -176,7 +218,6 @@ function settingsConfigSubmit(evt) {
     showMessage('Config value is required', 'error');
     return;
   }
-
   try {
     const config = JSON.parse(configRaw);
     saveConfig(configRaw);
@@ -185,13 +226,11 @@ function settingsConfigSubmit(evt) {
     showMessage('Could not parse config JSON', 'error');
   }
 }
-
 function saveConfig(config) {
   var option = {
           "key": "dt_setup_wizard_config",
           "value": config
       }
-
   console.log('saving settings: ', config);
   showMessage(`Setting option: ${option.key}`);
   sendApiRequest('/option', option, 'disciple-tools-setup-wizard/v1')
@@ -204,7 +243,6 @@ function saveConfig(config) {
       showMessage(`Error setting option: ${option.key}`, 'error');
     });
 }
-
 function createMessageLi(content, context) {
   const message = document.createElement('li');
   message.innerHTML = content;
@@ -217,7 +255,6 @@ function showMessage(content, context) {
   const msgContainer = document.getElementById('message-container');
   const message = createMessageLi(content, context);
   msgContainer.append(message);
-
   const logContainer = document.getElementById('log-container');
   const log = createMessageLi(content, context);
   const logs = logContainer.getElementsByClassName('logs');
@@ -225,7 +262,6 @@ function showMessage(content, context) {
     logs[0].append(log);
     logs[0].scrollTo(0, logs[0].scrollHeight);
   }
-
   setTimeout(function () {
     message.remove();
   }, 6500);
@@ -243,11 +279,9 @@ function toggleLogContainer(evt) {
     }
   }
 }
-
 function onExpandableTextareaInput({ target:elm }){
   // make sure the input event originated from a textarea and it's desired to be auto-expandable
   if( !elm.classList.contains('auto-expand') || !elm.nodeName == 'TEXTAREA' ) return
-
   if (elm.scrollHeight > elm.offsetHeight) {
     elm.style.minHeight = `calc(${elm.scrollHeight}px + 2rem)`;
   }
