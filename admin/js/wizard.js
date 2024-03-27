@@ -19,11 +19,6 @@ function buildFormData (formData, data, parentKey) {
     formData.append(parentKey, value);
   }
 };
-function loopInstallPlugins(plugins) {
-  for (plugin of plugins) {
-    install(plugin);
-  }
-}
 function install(pluginUrl) {
   const isDtPlugin = pluginUrl.includes('http') || pluginUrl.includes('/');
   const slug = isDtPlugin
@@ -86,11 +81,6 @@ function activate(pluginSlug) {
       showMessage(`Error activating plugin ${pluginSlug}`, 'error');
     });
 }
-function loopCreateUsers(users) {
-  for (user of users) {
-    createUser(user);
-  }
-}
 function createUser(user) {
   console.log('creating user: ', user);
   showMessage(`Creating user: ${user.username}`);
@@ -121,6 +111,13 @@ function setOption(option) {
       showMessage(`Error setting option: ${option.key}`, 'error');
     });
 }
+function parseOptionValue(value) {
+  if (value.charAt(0) == '{') {
+    return JSON.parse(value);
+  } else {
+    return value;
+  }
+}
 function onClickOptionButton(event) {
   if (event){
     event.preventDefault();
@@ -132,38 +129,24 @@ function onClickOptionButton(event) {
       setOption(
         {
           "key":button,
-          "value":formData.get(button)
+          "value":parseOptionValue(formData.get(button))
         }
       );
     } catch (error) {
       console.error(error);
       showMessage('Error setting option', 'error');
     }
-  } else{
-    for (entry of formData.entries()) {
-      try {
-        if (entry.value !== 'all') {
-          setOption(
-            {
-              "key":entry[0],
-              "value":entry[1]
-            }
-          );
-        }
-      } catch (error) {
-        console.error(error);
-        showMessage('Error setting option', 'error');
-      }
-    }
-  }
-}
-function loopSetOptions(event) {
-  var button = event.target;
-  var options = button.dataset.options;
-  for (option of options) {
+  } else {
     try {
-      setOption(option);
-    } catch (error) {
+      console.log(formData.entries());
+      formData.entries()
+      .filter((entry) => entry[0] !== 'button')
+      .map((entry) => ({
+        key: entry[0],
+        value: entry[1],
+      }))
+      .forEach((option) => setOption(option));
+    } catch {
       console.error(error);
       showMessage('Error setting option', 'error');
     }
@@ -220,7 +203,7 @@ function settingsConfigSubmit(evt) {
   }
   try {
     const config = JSON.parse(configRaw);
-    saveConfig(configRaw);
+    saveConfig(config);
   } catch (error) {
     console.error(error);
     showMessage('Could not parse config JSON', 'error');

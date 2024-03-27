@@ -35,8 +35,7 @@ class Disciple_Tools_Setup_Wizard_Tab_Settings
     }
 
     public function main_column() {
-        global $wpdb;
-        $setting = get_option( 'dt_setup_wizard_config' );
+        $setting = json_encode( get_option( 'dt_setup_wizard_config' ), JSON_PRETTY_PRINT );
         ?>
         <!-- Box -->
         <table class="widefat striped">
@@ -50,7 +49,7 @@ class Disciple_Tools_Setup_Wizard_Tab_Settings
             <td>
               <form name="settingsConfig" onsubmit="settingsConfigSubmit(event)">
                 <label for="config">JSON Config</label>
-                <textarea id="config" name="config" class="auto-expand" data-min-rows="3" ><?php echo esc_html( $setting );?></textarea>
+                <textarea id="config" name="config" class="auto-expand" data-min-rows="3" ><?php echo esc_attr( $setting );?></textarea>
                 <button type="submit">Submit</button>
               </form>
             </td>
