@@ -50,12 +50,6 @@ class Disciple_Tools_Setup_Wizard_Tab
             $step = '1';
         }
         //$config = json_encode( $setting );
-        dt_write_log( $setting['steps'] );
-        ?>
-        <!-- Box -->
-        <?php //foreach($config->steps as $key=>$item)
-                  //{
-                    //$key++;
         ?>
         <h1><?php echo esc_html( $setting['steps'][$step -1]['name'] )?></h1>
         <?php echo wp_kses_post( $parsedown->text( $setting['steps'][$step -1]['description'] ) )?>

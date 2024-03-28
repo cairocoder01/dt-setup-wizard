@@ -35,7 +35,13 @@ class Disciple_Tools_Setup_Wizard_Tab_Settings
     }
 
     public function main_column() {
-        $setting = json_encode( get_option( 'dt_setup_wizard_config' ), JSON_PRETTY_PRINT );
+        $setting = json_encode( get_option( 'dt_setup_wizard_config' ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
+        if ( !$setting ) {
+          $setting = "";
+          dt_write_log("wrote log");
+      } else {
+        dt_write_log("not wrote log");
+      }
         ?>
         <!-- Box -->
         <table class="widefat striped">

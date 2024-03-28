@@ -69,7 +69,6 @@ class Disciple_Tools_Setup_Wizard_Endpoints
             }
             return update_option( $key, $value );
         } catch ( Exception $ex ) {
-            dt_write_log( 'ree' );
             return $ex;
         }
     }
