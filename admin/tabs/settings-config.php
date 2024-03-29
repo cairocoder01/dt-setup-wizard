@@ -35,11 +35,11 @@ class Disciple_Tools_Setup_Wizard_Tab_Settings
     }
 
     public function main_column() {
-      $setting = get_option( 'dt_setup_wizard_config' );
-      if ( $setting ) {
-        $setting = json_encode($setting);
-      }
-      ?>
+        $setting = get_option( 'dt_setup_wizard_config' );
+        if ( $setting ) {
+            $setting = json_encode( $setting );
+        }
+        ?>
       <!-- Box -->
       <table class="widefat striped">
         <thead>
@@ -61,7 +61,7 @@ class Disciple_Tools_Setup_Wizard_Tab_Settings
       </table>
       <br>
       <!-- End Box -->
-      <?php
+        <?php
     }
 
     public function right_column() {
