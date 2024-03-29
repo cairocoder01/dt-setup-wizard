@@ -35,30 +35,32 @@ class Disciple_Tools_Setup_Wizard_Tab_Settings
     }
 
     public function main_column() {
-        global $wpdb;
         $setting = get_option( 'dt_setup_wizard_config' );
+        if ( $setting ) {
+            $setting = json_encode( $setting );
+        }
         ?>
-        <!-- Box -->
-        <table class="widefat striped">
-          <thead>
-          <tr>
-            <th>Settings Config</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr>
-            <td>
-              <form name="settingsConfig" onsubmit="settingsConfigSubmit(event)">
-                <label for="config">JSON Config</label>
-                <textarea id="config" name="config" class="auto-expand" data-min-rows="3" ><?php echo esc_html( $setting );?></textarea>
-                <button type="submit">Submit</button>
-              </form>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-        <br>
-        <!-- End Box -->
+      <!-- Box -->
+      <table class="widefat striped">
+        <thead>
+        <tr>
+          <th>Settings Config</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>
+            <form name="settingsConfig" onsubmit="settingsConfigSubmit(event)">
+              <label for="config">JSON Config</label>
+              <textarea id="config" name="config" class="auto-expand" data-min-rows="3" ><?php echo esc_attr( $setting );?></textarea>
+              <button type="submit">Submit</button>
+            </form>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <br>
+      <!-- End Box -->
         <?php
     }
 

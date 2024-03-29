@@ -59,7 +59,7 @@ class Disciple_Tools_Setup_Wizard_Endpoints
             // or overwrite the old value with the new
             if ( is_array( $value ) ) {
                 $previous_value = get_option( $key );
-                if ( $overwrite ) {
+                if ( $overwrite || !is_array( $previous_value ) ) {
                     return update_option( $key, $value );
                 } else {
                     // default: merge new with the old, with new values taking priority
