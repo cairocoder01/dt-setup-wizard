@@ -35,36 +35,33 @@ class Disciple_Tools_Setup_Wizard_Tab_Settings
     }
 
     public function main_column() {
-        $setting = json_encode( get_option( 'dt_setup_wizard_config' ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
-        if ( !$setting ) {
-            $setting = '';
-            dt_write_log( 'wrote log' );
-        } else {
-            dt_write_log( 'not wrote log' );
-        }
-        ?>
-        <!-- Box -->
-        <table class="widefat striped">
-          <thead>
-          <tr>
-            <th>Settings Config</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr>
-            <td>
-              <form name="settingsConfig" onsubmit="settingsConfigSubmit(event)">
-                <label for="config">JSON Config</label>
-                <textarea id="config" name="config" class="auto-expand" data-min-rows="3" ><?php echo esc_attr( $setting );?></textarea>
-                <button type="submit">Submit</button>
-              </form>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-        <br>
-        <!-- End Box -->
-        <?php
+      $setting = get_option( 'dt_setup_wizard_config' );
+      if ( $setting ) {
+        $setting = json_encode($setting);
+      }
+      ?>
+      <!-- Box -->
+      <table class="widefat striped">
+        <thead>
+        <tr>
+          <th>Settings Config</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>
+            <form name="settingsConfig" onsubmit="settingsConfigSubmit(event)">
+              <label for="config">JSON Config</label>
+              <textarea id="config" name="config" class="auto-expand" data-min-rows="3" ><?php echo esc_attr( $setting );?></textarea>
+              <button type="submit">Submit</button>
+            </form>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <br>
+      <!-- End Box -->
+      <?php
     }
 
     public function right_column() {
