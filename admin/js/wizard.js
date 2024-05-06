@@ -19,6 +19,62 @@ function buildFormData (formData, data, parentKey) {
     formData.append(parentKey, value);
   }
 };
+function installPlugin(event) {
+  if (event){
+    event.preventDefault();
+  }
+  var formData = new FormData(event.target, event.submitter);
+  var button = formData.get('button');
+
+  if (button !== 'all'){
+    var nonce = formData.get(button)
+    installSlug(button, nonce);
+  } else {
+    try {
+      console.log(formData.entries());
+      formData.entries()
+      .filter((entry) => entry[0] !== 'button')
+      .forEach((plugin) => installSlug(plugin[0], plugin[1]));
+    } catch (error) {
+      console.error(error);
+      showMessage('Error setting option', 'error');
+    }
+  }
+}
+function installSlug(plugin, nonce) {
+  try {
+    plugin = JSON.parse(plugin);
+  } catch (error) {
+    showMessage(plugin, 'error')
+  }
+  console.log('url: ' + plugin['url']);
+  console.log('slug: ' + plugin['slug']);
+  if (plugin['url'] == null) {
+    const data = {
+      slug: plugin['slug'],
+      action: 'install-plugin',
+      _ajax_nonce: nonce
+    }
+    const slugFormData = new FormData();
+    buildFormData(slugFormData, data);
+    console.log('installing: ' + plugin['slug']);
+    showMessage(`Installing: ${plugin['slug']}`);
+    return fetch(`/wp-admin/admin-ajax.php`, {
+      method: 'POST',
+      body: slugFormData,
+      headers: {
+        "X-WP-Nonce": nonce,
+      }
+    }).catch((err) => {
+      console.log('Error:');
+      console.log(err);
+    }).then(() => {
+      activate(plugin['slug']);
+    });
+  } else {
+    install(plugin['url']);
+  }
+}
 function install(pluginUrl) {
   const isDtPlugin = pluginUrl.includes('http') || pluginUrl.includes('/');
   const slug = isDtPlugin
@@ -27,7 +83,7 @@ function install(pluginUrl) {
   console.log('installing: ' + slug);
   showMessage(`Installing: ${slug}`);
   if (isDtPlugin) {
-    sendApiRequest('/plugin-install', { download_url: pluginUrl })
+    sendApiRequest('/plugin-install', { download_url: pluginUrl }, 'dt-admin-settings')
       .then((success) => {
         if (success) {
           console.log('Successfully installed ' + slug);
@@ -67,7 +123,7 @@ function install(pluginUrl) {
 function activate(pluginSlug) {
   console.log('activating: ' + pluginSlug);
   showMessage(`Activating: ${pluginSlug}`);
-  sendApiRequest('/plugin-activate', { plugin_slug: pluginSlug })
+  sendApiRequest('/plugin-activate', { plugin_slug: pluginSlug }, 'dt-admin-settings')
     .then(function(success) {
       if (success) {
         console.log('Successfully activated ' + pluginSlug);
@@ -146,7 +202,7 @@ function onClickOptionButton(event) {
         value: entry[1],
       }))
       .forEach((option) => setOption(option));
-    } catch {
+    } catch (error) {
       console.error(error);
       showMessage('Error setting option', 'error');
     }
