@@ -19,63 +19,73 @@ function buildFormData (formData, data, parentKey) {
     formData.append(parentKey, value);
   }
 };
-function installPlugin(event) {
+function onInstallClick(event) {
   if (event){
     event.preventDefault();
   }
   var formData = new FormData(event.target, event.submitter);
+  console.log(event.submitter);
+  //event.target.parentNode.removeChild(event.target);
+  //var buttons = document.getElementsByTagName('button');
   var button = formData.get('button');
+  var nonce = formData.get('ajax_nonce');
 
   if (button !== 'all'){
-    var nonce = formData.get(button)
-    installSlug(button, nonce);
+    installPlugin(button, nonce);
   } else {
     try {
-      console.log(formData.entries());
       formData.entries()
-      .filter((entry) => entry[0] !== 'button')
-      .forEach((plugin) => installSlug(plugin[0], plugin[1]));
+      .filter((entry) => entry[0] !== 'button' && entry[0] !== 'ajax_nonce')
+      .forEach((plugin, i) => {
+        setTimeout(() => {
+          installPlugin(plugin[1], nonce);
+        }, i * 500);
+      });
     } catch (error) {
       console.error(error);
       showMessage('Error setting option', 'error');
     }
   }
 }
-function installSlug(plugin, nonce) {
+function installPlugin(plugin, nonce) {
+  console.log(plugin);
+  console.log(nonce);
   try {
     plugin = JSON.parse(plugin);
   } catch (error) {
     showMessage(plugin, 'error')
   }
-  console.log('url: ' + plugin['url']);
-  console.log('slug: ' + plugin['slug']);
   if (plugin['url'] == null) {
-    const data = {
-      slug: plugin['slug'],
-      action: 'install-plugin',
-      _ajax_nonce: nonce
-    }
-    const slugFormData = new FormData();
-    buildFormData(slugFormData, data);
-    console.log('installing: ' + plugin['slug']);
-    showMessage(`Installing: ${plugin['slug']}`);
-    return fetch(`/wp-admin/admin-ajax.php`, {
-      method: 'POST',
-      body: slugFormData,
-      headers: {
-        "X-WP-Nonce": nonce,
-      }
-    }).catch((err) => {
-      console.log('Error:');
-      console.log(err);
-    }).then(() => {
-      activate(plugin['slug']);
-    });
+    installBySlug(plugin, nonce);
   } else {
-    install(plugin['url']);
+    installByUrl(plugin['url']);
   }
 }
-function install(pluginUrl) {
+function installBySlug(plugin, nonce) {
+  const data = {
+    slug: plugin['slug'],
+    action: 'install-plugin',
+    _ajax_nonce: nonce
+  }
+  const slugFormData = new FormData();
+  buildFormData(slugFormData, data);
+  console.log('installing: ' + plugin['slug']);
+  showMessage(`Installing: ${plugin['slug']}`);
+  return fetch(`/wp-admin/admin-ajax.php`, {
+    method: 'POST',
+    body: slugFormData,
+    headers: {
+      "X-WP-Nonce": nonce,
+    }
+  }).catch((err) => {
+    console.log('Error:');
+    console.log(err);
+  }).then(() => {
+    setTimeout(() => { activate(plugin['slug']) }, 500);
+    //activate(plugin['slug']);
+  });
+}
+function installByUrl(pluginUrl) {
   const isDtPlugin = pluginUrl.includes('http') || pluginUrl.includes('/');
   const slug = isDtPlugin
     ? pluginUrl.split('/')[4]
@@ -88,7 +98,8 @@ function install(pluginUrl) {
         if (success) {
           console.log('Successfully installed ' + slug);
           showMessage(`Installed ${slug}`, 'success');
-          activate(slug);
+          setTimeout(() => { activate(slug) }, 500);
+          //activate(slug);
         } else {
           throw new Exception('Error');
         }
@@ -112,6 +123,9 @@ function install(pluginUrl) {
     }).then((response) => response.json())
       .then((success) => {
         console.log('Successfully installed ' + slug, success);
+        const sp1 = document.createElement("span");
+        sp1.textContent = "Active";
+        document.getElementById(slug).replaceWith(sp1);
         showMessage(`Installed and Activated ${slug}`, 'success');
       })
       .catch((error) => {
@@ -127,6 +141,9 @@ function activate(pluginSlug) {
     .then(function(success) {
       if (success) {
         console.log('Successfully activated ' + pluginSlug);
+        const sp1 = document.createElement("span");
+        sp1.textContent = "Active";
+        document.getElementById(pluginSlug).replaceWith(sp1);
         showMessage(`Activated ${pluginSlug}`, 'success');
       } else {
         throw new Exception('Error');
@@ -272,7 +289,7 @@ function saveConfig(config) {
       }
   console.log('saving settings: ', config);
   showMessage(`Setting option: ${option.key}`);
-  sendApiRequest('/option', option, 'disciple-tools-setup-wizard/v1')
+  sendApiRequest('/option', option, 'dt-admin-settings')
     .then((data) => {
       console.log('Set option', data);
       showMessage(`Set option: ${option.key}`, 'success');

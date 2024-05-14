@@ -10,8 +10,6 @@ class Disciple_Tools_Setup_Wizard_Endpoints
 
         $this->register_route( $namespace, '/user', array( $this, 'user_create' ) );
         $this->register_route( $namespace, '/option', array( $this, 'option_set' ) );
-        $this->register_route( $namespace, '/plugin', array( $this, 'plugin_install' ) );
-        $this->register_route( $namespace, '/activate', array( $this, 'plugin_activate' ) );
     }
 
     public function register_route( $namespace, $route, $callback ) {

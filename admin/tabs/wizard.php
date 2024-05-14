@@ -5,8 +5,14 @@ function is_json_object( $array ) {
     return json_last_error() === JSON_ERROR_NONE;
 }
 function is_plugin_installed( $slug ) {
-    $pathpluginurl = WP_PLUGIN_DIR . '/' . $slug;
-    $is_installed = file_exists( $pathpluginurl );
+    $plugins = array_keys( get_plugins() );
+    $is_installed = false;
+    foreach ( $plugins as $plugin ) {
+        if ( str_contains( $plugin, $slug ) ) {
+            $is_installed = true;
+            break;
+        }
+    }
     return $is_installed;
 }
 function is_plugin_activated( $slug ) {
@@ -171,7 +177,8 @@ class Disciple_Tools_Setup_Wizard_Tab
     }
     public function load_plugins( $plugins, $step ) {
         ?>
-    <form onsubmit="installPlugin(event)">
+    <form id="plugins" onsubmit="onInstallClick(event)">
+    <input type="hidden" name="ajax_nonce" value="<?php echo esc_html( wp_create_nonce( 'updates' ) ) ?>" />
     <table class="widefat striped">
           <thead>
             <tr>
@@ -199,8 +206,8 @@ class Disciple_Tools_Setup_Wizard_Tab
                     } else {
                         ?>
                       <td>
-                        <input type="hidden" name="<?php echo esc_html( json_encode( $plugin ) )  ?>" value="<?php echo esc_html( wp_create_nonce( 'updates' ) ) ?>" />
-                        <button type="submit" name="button" value="<?php echo esc_html( json_encode( $plugin ) )  ?>">
+                        <input type="hidden" name="plugin" value="<?php echo esc_html( json_encode( $plugin ) )  ?>" />
+                        <button type="submit" id="<?php echo esc_html( $slug )  ?>" name="button" value="<?php echo esc_html( json_encode( $plugin ) )  ?>">
                         Activate
                         </button>
                       </td>
@@ -209,8 +216,8 @@ class Disciple_Tools_Setup_Wizard_Tab
                 } else {
                     ?>
                   <td>
-                    <input type="hidden" name="<?php echo esc_html( json_encode( $plugin ) )  ?>" value="<?php echo esc_html( wp_create_nonce( 'updates' ) ) ?>" />
-                    <button type="submit" name="button" value="<?php echo esc_html( json_encode( $plugin ) )  ?>">
+                    <input type="hidden" name="plugin" value="<?php echo esc_html( json_encode( $plugin ) )  ?>" />
+                    <button type="submit" id="<?php echo esc_html( $slug )  ?>" name="button" value="<?php echo esc_html( json_encode( $plugin ) )  ?>">
                     Install & Activate
                     </button>
                   </td>
