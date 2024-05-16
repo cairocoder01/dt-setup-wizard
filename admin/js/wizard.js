@@ -289,7 +289,7 @@ function saveConfig(config) {
       }
   console.log('saving settings: ', config);
   showMessage(`Setting option: ${option.key}`);
-  sendApiRequest('/option', option, 'dt-admin-settings')
+  sendApiRequest('/option', option, 'disciple-tools-setup-wizard/v1')
     .then((data) => {
       console.log('Set option', data);
       showMessage(`Set option: ${option.key}`, 'success');
