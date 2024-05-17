@@ -206,7 +206,7 @@ class Disciple_Tools_Setup_Wizard_Tab
                     } else {
                         ?>
                       <td>
-                        <input type="hidden" name="plugin" value="<?php echo esc_html( json_encode( $plugin ) )  ?>" />
+                        <input type="hidden" id="<?php echo esc_html( $slug )  ?>hidden" name="plugin" value="<?php echo esc_html( json_encode( $plugin ) )  ?>" />
                         <button type="submit" id="<?php echo esc_html( $slug )  ?>" name="button" value="<?php echo esc_html( json_encode( $plugin ) )  ?>">
                         Activate
                         </button>
@@ -216,7 +216,7 @@ class Disciple_Tools_Setup_Wizard_Tab
                 } else {
                     ?>
                   <td>
-                    <input type="hidden" name="plugin" value="<?php echo esc_html( json_encode( $plugin ) )  ?>" />
+                    <input type="hidden" id="<?php echo esc_html( $slug )  ?>hidden" name="plugin" value="<?php echo esc_html( json_encode( $plugin ) )  ?>" />
                     <button type="submit" id="<?php echo esc_html( $slug )  ?>" name="button" value="<?php echo esc_html( json_encode( $plugin ) )  ?>">
                     Install & Activate
                     </button>

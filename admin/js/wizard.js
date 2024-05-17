@@ -126,6 +126,7 @@ function installByUrl(pluginUrl) {
         const sp1 = document.createElement("span");
         sp1.textContent = "Active";
         document.getElementById(slug).replaceWith(sp1);
+        document.getElementById(slug+"hidden").remove();
         showMessage(`Installed and Activated ${slug}`, 'success');
       })
       .catch((error) => {
@@ -144,6 +145,7 @@ function activate(pluginSlug) {
         const sp1 = document.createElement("span");
         sp1.textContent = "Active";
         document.getElementById(pluginSlug).replaceWith(sp1);
+        document.getElementById(pluginSlug+"hidden").remove();
         showMessage(`Activated ${pluginSlug}`, 'success');
       } else {
         throw new Exception('Error');
@@ -289,7 +291,7 @@ function saveConfig(config) {
       }
   console.log('saving settings: ', config);
   showMessage(`Setting option: ${option.key}`);
-  sendApiRequest('/option', option, 'disciple-tools-setup-wizard/v1')
+  sendApiRequest('/option', option, 'dt-admin-settings')
     .then((data) => {
       console.log('Set option', data);
       showMessage(`Set option: ${option.key}`, 'success');
