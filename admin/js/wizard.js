@@ -289,17 +289,7 @@ function saveConfig(config) {
           "key": "dt_setup_wizard_config",
           "value": config
       }
-  console.log('saving settings: ', config);
-  showMessage(`Setting option: ${option.key}`);
-  sendApiRequest('/option', option, 'dt-admin-settings')
-    .then((data) => {
-      console.log('Set option', data);
-      showMessage(`Set option: ${option.key}`, 'success');
-    })
-    .catch((error) => {
-      console.error('Error setting option', error);
-      showMessage(`Error setting option: ${option.key}`, 'error');
-    });
+  setOption(option);
 }
 function createMessageLi(content, context) {
   const message = document.createElement('li');
