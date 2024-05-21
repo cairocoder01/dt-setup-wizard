@@ -19,7 +19,73 @@ function buildFormData (formData, data, parentKey) {
     formData.append(parentKey, value);
   }
 };
-function install(pluginUrl) {
+function onInstallClick(event) {
+  if (event){
+    event.preventDefault();
+  }
+  var formData = new FormData(event.target, event.submitter);
+  console.log(event.submitter);
+  //event.target.parentNode.removeChild(event.target);
+  //var buttons = document.getElementsByTagName('button');
+  var button = formData.get('button');
+  var nonce = formData.get('ajax_nonce');
+
+  if (button !== 'all'){
+    installPlugin(button, nonce);
+  } else {
+    try {
+      formData.entries()
+      .filter((entry) => entry[0] !== 'button' && entry[0] !== 'ajax_nonce')
+      .forEach((plugin, i) => {
+        setTimeout(() => {
+          installPlugin(plugin[1], nonce);
+        }, i * 500);
+      });
+    } catch (error) {
+      console.error(error);
+      showMessage('Error setting option', 'error');
+    }
+  }
+}
+function installPlugin(plugin, nonce) {
+  console.log(plugin);
+  console.log(nonce);
+  try {
+    plugin = JSON.parse(plugin);
+  } catch (error) {
+    showMessage(plugin, 'error')
+  }
+  if (plugin['url'] == null) {
+    installBySlug(plugin, nonce);
+  } else {
+    installByUrl(plugin['url']);
+  }
+}
+function installBySlug(plugin, nonce) {
+  const data = {
+    slug: plugin['slug'],
+    action: 'install-plugin',
+    _ajax_nonce: nonce
+  }
+  const slugFormData = new FormData();
+  buildFormData(slugFormData, data);
+  console.log('installing: ' + plugin['slug']);
+  showMessage(`Installing: ${plugin['slug']}`);
+  return fetch(`/wp-admin/admin-ajax.php`, {
+    method: 'POST',
+    body: slugFormData,
+    headers: {
+      "X-WP-Nonce": nonce,
+    }
+  }).catch((err) => {
+    console.log('Error:');
+    console.log(err);
+  }).then(() => {
+    setTimeout(() => { activate(plugin['slug']) }, 500);
+    //activate(plugin['slug']);
+  });
+}
+function installByUrl(pluginUrl) {
   const isDtPlugin = pluginUrl.includes('http') || pluginUrl.includes('/');
   const slug = isDtPlugin
     ? pluginUrl.split('/')[4]
@@ -27,12 +93,13 @@ function install(pluginUrl) {
   console.log('installing: ' + slug);
   showMessage(`Installing: ${slug}`);
   if (isDtPlugin) {
-    sendApiRequest('/plugin-install', { download_url: pluginUrl })
+    sendApiRequest('/plugin-install', { download_url: pluginUrl }, 'dt-admin-settings')
       .then((success) => {
         if (success) {
           console.log('Successfully installed ' + slug);
           showMessage(`Installed ${slug}`, 'success');
-          activate(slug);
+          setTimeout(() => { activate(slug) }, 500);
+          //activate(slug);
         } else {
           throw new Exception('Error');
         }
@@ -56,6 +123,10 @@ function install(pluginUrl) {
     }).then((response) => response.json())
       .then((success) => {
         console.log('Successfully installed ' + slug, success);
+        const sp1 = document.createElement("span");
+        sp1.textContent = "Active";
+        document.getElementById(slug).replaceWith(sp1);
+        document.getElementById(slug+"hidden").remove();
         showMessage(`Installed and Activated ${slug}`, 'success');
       })
       .catch((error) => {
@@ -67,10 +138,14 @@ function install(pluginUrl) {
 function activate(pluginSlug) {
   console.log('activating: ' + pluginSlug);
   showMessage(`Activating: ${pluginSlug}`);
-  sendApiRequest('/plugin-activate', { plugin_slug: pluginSlug })
+  sendApiRequest('/plugin-activate', { plugin_slug: pluginSlug }, 'dt-admin-settings')
     .then(function(success) {
       if (success) {
         console.log('Successfully activated ' + pluginSlug);
+        const sp1 = document.createElement("span");
+        sp1.textContent = "Active";
+        document.getElementById(pluginSlug).replaceWith(sp1);
+        document.getElementById(pluginSlug+"hidden").remove();
         showMessage(`Activated ${pluginSlug}`, 'success');
       } else {
         throw new Exception('Error');
@@ -146,7 +221,7 @@ function onClickOptionButton(event) {
         value: entry[1],
       }))
       .forEach((option) => setOption(option));
-    } catch {
+    } catch (error) {
       console.error(error);
       showMessage('Error setting option', 'error');
     }
@@ -214,17 +289,7 @@ function saveConfig(config) {
           "key": "dt_setup_wizard_config",
           "value": config
       }
-  console.log('saving settings: ', config);
-  showMessage(`Setting option: ${option.key}`);
-  sendApiRequest('/option', option, 'disciple-tools-setup-wizard/v1')
-    .then((data) => {
-      console.log('Set option', data);
-      showMessage(`Set option: ${option.key}`, 'success');
-    })
-    .catch((error) => {
-      console.error('Error setting option', error);
-      showMessage(`Error setting option: ${option.key}`, 'error');
-    });
+  setOption(option);
 }
 function createMessageLi(content, context) {
   const message = document.createElement('li');
