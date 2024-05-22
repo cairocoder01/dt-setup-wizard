@@ -317,7 +317,7 @@ class Disciple_Tools_Setup_Wizard_Tab
         foreach ( $users as $user ){
             $username = $user['username'];
             $email = $user['email'];
-            $displayName = $user['displayName'];
+            $display_name = $user['displayName'];
             $roles = $user['roles'];
             ?>
         <tr>
@@ -328,7 +328,7 @@ class Disciple_Tools_Setup_Wizard_Tab
             <?php echo esc_html( $email ); ?>
           </td>
           <td>
-            <?php echo esc_html( $displayName ); ?>
+            <?php echo esc_html( $display_name ); ?>
           </td>
           <td>
             <?php echo esc_html( $roles ); ?>
