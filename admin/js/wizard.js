@@ -164,6 +164,10 @@ function createUser(user) {
       if (data && Number.isInteger(data)) {
         console.log('Created user', data);
         showMessage(`Created user: ${user.username} (#${data})`, 'success');
+        const sp1 = document.createElement("span");
+        sp1.textContent = "Done!";
+        document.getElementById(user.username).replaceWith(sp1);
+        document.getElementById(user.username+"hidden").remove();
       } else {
         throw data;
       }
@@ -173,6 +177,34 @@ function createUser(user) {
       showMessage(`Error creating user: ${user.username}`, 'error');
     });
 }
+function onClickUserButton(event) {
+  if (event){
+    event.preventDefault();
+  }
+  var formData = new FormData(event.target, event.submitter);
+  const button = formData.get('button');
+  console.log(formData.get(button));
+  if (button !== 'all') {
+    try {
+      createUser(
+        parseOptionValue(formData.get(button))
+      );
+    } catch (error) {
+      console.error(error);
+      showMessage('Error creating user', 'error');
+    }
+  } else {
+    try {
+      console.log(formData.entries());
+      formData.entries()
+      .filter((entry) => entry[0] !== 'button')
+      .forEach((user) => createUser(JSON.parse(user[1])));
+    } catch (error) {
+      console.error(error);
+      showMessage('Error creating user', 'error');
+    }
+  }
+}
 function setOption(option) {
   console.log('setting option: ', option);
   showMessage(`Setting option: ${option.key}`);
@@ -180,6 +212,13 @@ function setOption(option) {
     .then((data) => {
       console.log('Set option', data);
       showMessage(`Set option: ${option.key}`, 'success');
+      const sp1 = document.createElement("span");
+      sp1.textContent = "Done!";
+      document.getElementById(option.key).replaceWith(sp1);
+      document.getElementById(option.key+"input").remove();
+      const sp2 = document.createElement("span");
+      sp2.textContent = option.value;
+      document.getElementById(option.key+"value").replaceWith(sp2);
     })
     .catch((error) => {
       console.error('Error setting option', error);
@@ -200,7 +239,7 @@ function onClickOptionButton(event) {
   var formData = new FormData(event.target, event.submitter);
   const button = formData.get('button');
   if (button !== 'all') {
-  	try {
+    try {
       setOption(
         {
           "key":button,
@@ -226,6 +265,28 @@ function onClickOptionButton(event) {
       showMessage('Error setting option', 'error');
     }
   }
+}
+function onClickManualButton(event) {
+  if (event){
+    event.preventDefault();
+  }
+  var formData = new FormData(event.target, event.submitter);
+  const button = formData.get('button');
+  console.log(button);
+  var option = {
+    "key": 'dt_manual_steps',
+    "value":parseOptionValue(button)
+  }
+  showMessage(`Setting option: ${option.key}`);
+  sendApiRequest('/option', option, 'disciple-tools-setup-wizard/v1')
+  .then((data) => {
+    console.log('Set option', data);
+    showMessage(`Set option: ${option.key}`, 'success');
+  })
+  .catch((error) => {
+    console.error('Error setting option', error);
+    showMessage(`Error setting option: ${option.key}`, 'error');
+  });
 }
 function advancedConfigSubmit(evt) {
     if (evt) {
@@ -290,6 +351,23 @@ function saveConfig(config) {
           "value": config
       }
   setOption(option);
+  var manualOptions = {};
+    for (step of config.steps) {
+      if ( !step.config ) {
+        manualOptions[step.name] = false;
+      }
+    }
+    var manualOption = {
+      "key": "dt_manual_steps",
+      "value": manualOptions
+    }
+    sendApiRequest('/option', manualOption, 'disciple-tools-setup-wizard/v1')
+    .then((data) => {
+      console.log('Set option', data);
+    })
+    .catch((error) => {
+      console.error('Error setting option', error);
+    });
 }
 function createMessageLi(content, context) {
   const message = document.createElement('li');
