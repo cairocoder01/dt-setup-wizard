@@ -212,13 +212,6 @@ function setOption(option) {
     .then((data) => {
       console.log('Set option', data);
       showMessage(`Set option: ${option.key}`, 'success');
-      const sp1 = document.createElement("span");
-      sp1.textContent = "Done!";
-      document.getElementById(option.key).replaceWith(sp1);
-      document.getElementById(option.key+"input").remove();
-      const sp2 = document.createElement("span");
-      sp2.textContent = option.value;
-      document.getElementById(option.key+"value").replaceWith(sp2);
     })
     .catch((error) => {
       console.error('Error setting option', error);
@@ -245,7 +238,15 @@ function onClickOptionButton(event) {
           "key":button,
           "value":parseOptionValue(formData.get(button))
         }
-      );
+      )
+      .then(() => { 
+        const sp1 = document.createElement("span");
+        sp1.textContent = "Done!";
+        document.getElementById(option.key).replaceWith(sp1);
+        document.getElementById(option.key+"input").remove();
+        const sp2 = document.createElement("span");
+        sp2.textContent = option.value;
+        document.getElementById(option.key+"value").replaceWith(sp2); });
     } catch (error) {
       console.error(error);
       showMessage('Error setting option', 'error');
@@ -259,22 +260,30 @@ function onClickOptionButton(event) {
         key: entry[0],
         value: entry[1],
       }))
-      .forEach((option) => setOption(option));
+      .forEach((option) => setOption(option)
+      .then(() => { 
+        const sp1 = document.createElement("span");
+        sp1.textContent = "Done!";
+        document.getElementById(option.key).replaceWith(sp1);
+        document.getElementById(option.key+"input").remove();
+        const sp2 = document.createElement("span");
+        sp2.textContent = option.value;
+        document.getElementById(option.key+"value").replaceWith(sp2); }));
     } catch (error) {
       console.error(error);
       showMessage('Error setting option', 'error');
     }
   }
 }
-function onClickManualButton(event) {
+function onClickMarkComplete(event) {
   if (event){
     event.preventDefault();
   }
   var formData = new FormData(event.target, event.submitter);
-  const button = formData.get('button');
+  const button = formData.get('progressButton');
   console.log(button);
   var option = {
-    "key": 'dt_manual_steps',
+    "key": 'dt_setup_wizard_progress',
     "value":parseOptionValue(button)
   }
   showMessage(`Setting option: ${option.key}`);
@@ -351,17 +360,17 @@ function saveConfig(config) {
           "value": config
       }
   setOption(option);
-  var manualOptions = {};
+  var progress = {};
     for (step of config.steps) {
-      if ( !step.config ) {
-        manualOptions[step.name] = false;
-      }
+      progress[step.name] = false;
     }
-    var manualOption = {
-      "key": "dt_manual_steps",
-      "value": manualOptions
+    console.log(progress);
+    var progressOption = {
+      "key": "dt_setup_wizard_progress",
+      "value": progress
     }
-    sendApiRequest('/option', manualOption, 'disciple-tools-setup-wizard/v1')
+    console.log(progressOption);
+    sendApiRequest('/option', progressOption, 'disciple-tools-setup-wizard/v1')
     .then((data) => {
       console.log('Set option', data);
     })

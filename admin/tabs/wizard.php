@@ -4,6 +4,31 @@ function is_json_object( $array ) {
     json_encode( $array );
     return json_last_error() === JSON_ERROR_NONE;
 }
+function mark_complete_button( $step_name ) {
+    $progress_value = get_option( 'dt_setup_wizard_progress' );
+    if ( $progress_value[$step_name] == 'true' ) {
+        $progress_value[$step_name] = false;
+    } else {
+        $progress_value[$step_name] = true;
+    }
+    ?>
+  <form onsubmit="onClickMarkComplete(event)">
+        <button type="submit" name="progressButton" value="<?php echo esc_html( json_encode( $progress_value ) )  ?>">
+        <?php
+        if ( $progress_value[$step_name] ) {
+            ?>
+              Mark as Complete
+            <?php
+        } else {
+            ?>
+              Mark as Incomplete
+            <?php
+        }
+        ?>
+        </button>
+      </form>
+    <?php
+}
 function is_plugin_installed( $slug ) {
     $plugins = array_keys( get_plugins() );
     $is_installed = false;
@@ -25,7 +50,11 @@ function is_plugin_activated( $slug ) {
 }
 function step_status( $step ) {
     $checkmark = true;
-    if ( $step['config']['options'] ) {
+    $db_value = get_option( 'dt_setup_wizard_progress' );
+
+    if ( $db_value[$step['name']] == 'true' ) {
+        return true;
+    } elseif ( $step['config']['options'] ) {
         $options = $step['config']['options'];
         foreach ( $options as $option ) {
             $key = $option['key'];
@@ -54,11 +83,9 @@ function step_status( $step ) {
             }
         }
     } else {
-        $db_value = get_option( 'dt_manual_steps' );
-        if ( $db_value[$step['name']] == 'false' ) {
-            $checkmark = false;
-        }
+        $checkmark = false;
     }
+
     return $checkmark;
 }
 /**
@@ -111,13 +138,13 @@ class Disciple_Tools_Setup_Wizard_Tab
         <h1><?php echo esc_html( $setting['steps'][$step -1]['name'] )?></h1>
         <?php echo wp_kses_post( $parsedown->text( $setting['steps'][$step -1]['description'] ) )?>
         <?php if ( $setting['steps'][$step -1]['config']['options'] ){//key, value
-            $this->load_options( $setting['steps'][$step -1]['config']['options'], $step );
+            $this->load_options( $setting['steps'][$step -1]['config']['options'], $setting['steps'][$step -1] );
         } elseif ( $setting['steps'][$step -1]['config']['plugins'] ){//key, value
-            $this->load_plugins( $setting['steps'][$step -1]['config']['plugins'], $step );
+            $this->load_plugins( $setting['steps'][$step -1]['config']['plugins'], $setting['steps'][$step -1] );
         } elseif ( $setting['steps'][$step -1]['config']['users'] ){//key, value
-            $this->load_users( $setting['steps'][$step -1]['config']['users'], $step );
+            $this->load_users( $setting['steps'][$step -1]['config']['users'], $setting['steps'][$step -1] );
         } else {
-            $this->load_manual( $setting['steps'][$step -1], $step );
+            $this->load_manual( $setting['steps'][$step -1] );
         }
         ?>
     <br>
@@ -230,8 +257,8 @@ class Disciple_Tools_Setup_Wizard_Tab
         <button type="submit" name="button" value="all">
         Update All
         </button>
-        </form>
         <?php
+        mark_complete_button( $step['name'] );
     }
     public function load_plugins( $plugins, $step ) {
         ?>
@@ -293,6 +320,7 @@ class Disciple_Tools_Setup_Wizard_Tab
         </button>
         </form>
         <?php
+        mark_complete_button( $step['name'] );
     }
     public function load_users( $users, $step ) {
         ?>
@@ -318,7 +346,8 @@ class Disciple_Tools_Setup_Wizard_Tab
             $username = $user['username'];
             $email = $user['email'];
             $display_name = $user['displayName'];
-            $roles = $user['roles'];
+            //$roles = json_encode( $user['roles'] );
+            $roles = implode( ', ', $user['roles'] );
             ?>
         <tr>
           <td>
@@ -358,17 +387,10 @@ class Disciple_Tools_Setup_Wizard_Tab
     </button>
     </form>
         <?php
+        mark_complete_button( $step['name'] );
     }
-    public function load_manual( $option, $step ) {
-        $db_value = get_option( 'dt_manual_steps' );
-        $db_value[$option['name']] = true;
-        ?>
-    <form onsubmit="onClickManualButton(event)">
-        <button type="submit" name="button" value="<?php echo esc_html( json_encode( $db_value ) )  ?>">
-        Mark as Complete
-        </button>
-        </form>
-        <?php
+    public function load_manual( $step ) {
+        mark_complete_button( $step['name'] );
     }
 }
 ?>
