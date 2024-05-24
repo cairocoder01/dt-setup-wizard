@@ -208,7 +208,7 @@ function onClickUserButton(event) {
 function setOption(option) {
   console.log('setting option: ', option);
   showMessage(`Setting option: ${option.key}`);
-  sendApiRequest('/option', option, 'disciple-tools-setup-wizard/v1')
+  return sendApiRequest('/option', option, 'disciple-tools-setup-wizard/v1')
     .then((data) => {
       console.log('Set option', data);
       showMessage(`Set option: ${option.key}`, 'success');
