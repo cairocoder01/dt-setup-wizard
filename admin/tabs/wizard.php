@@ -257,6 +257,7 @@ class Disciple_Tools_Setup_Wizard_Tab
         <button type="submit" name="button" value="all">
         Update All
         </button>
+        </form>
         <?php
         mark_complete_button( $step['name'] );
     }
