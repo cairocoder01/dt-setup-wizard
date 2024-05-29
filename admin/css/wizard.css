@@ -1,3 +1,75 @@
+/* ==== Wizard Steps ==== */
+.wizard-step tfoot td {
+    text-align: right;
+}
+
+.wizard-step-progress span.icon {
+    border-radius: 50%;
+    color: gray;
+    padding: 1px;
+    font-weight: bold;
+    border: solid 1px currentColor;
+    display: inline-block;
+    height: 0.8rem;
+    width: 0.8rem;
+    position: relative;
+}
+.wizard-step-progress span.icon:before {
+    content: ' ';
+    display: block;
+    left: 1px;
+    width: .8rem;
+    height: 0.8rem;
+    top: -1px;
+    position: absolute;
+}
+.wizard-step-progress span.icon.complete {
+    background-color: forestgreen;
+    color: #fff;
+    border-color: forestgreen;
+}
+.wizard-step-progress span.icon.complete:before {
+    content: '✓';
+}
+
+.step-navigation {
+    display: flex;
+    justify-content: space-between;
+    background: #fff;
+    padding: 0.5rem;
+    border: solid 1px lightgray;
+}
+.step-navigation a.prev, .step-navigation a.next {
+    text-decoration: none;
+    color: inherit;
+    font-size: 1.3rem;
+}
+.step-navigation a.prev[aria-disabled], .step-navigation a.next[aria-disabled] {
+    color: lightgray;
+    cursor: default;
+}
+.step-navigation button.mark-complete {
+    background: transparent;
+    border: solid 1px lightgray;
+    border-radius: 0.5rem;
+    padding: 0.25rem;
+}
+.step-navigation button.mark-complete.complete {
+    border-radius: 50%;
+    aspect-ratio: 1 / 1;
+    background-color: forestgreen;
+    color: #fff;
+    height: 1.6rem;
+    width: 1.6rem;
+}
+.step-navigation button.mark-complete:hover {
+    cursor: pointer;
+}
+.step-navigation button.mark-complete:before {
+    content: '✓';
+}
+
+/* ==== Advanced ==== */
 .tab-advanced label {
     display: block;
     font-weight: 600;

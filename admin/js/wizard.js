@@ -165,7 +165,7 @@ function createUser(user) {
         console.log('Created user', data);
         showMessage(`Created user: ${user.username} (#${data})`, 'success');
         const sp1 = document.createElement("span");
-        sp1.textContent = "Done!";
+        sp1.textContent = "Done";
         document.getElementById(user.username).replaceWith(sp1);
         document.getElementById(user.username+"hidden").remove();
       } else {
@@ -239,9 +239,9 @@ function onClickOptionButton(event) {
           "value":parseOptionValue(formData.get(button))
         }
       )
-      .then(() => { 
+      .then(() => {
         const sp1 = document.createElement("span");
-        sp1.textContent = "Done!";
+        sp1.textContent = "Done";
         document.getElementById(option.key).replaceWith(sp1);
         document.getElementById(option.key+"input").remove();
         const sp2 = document.createElement("span");
@@ -261,9 +261,9 @@ function onClickOptionButton(event) {
         value: entry[1],
       }))
       .forEach((option) => setOption(option)
-      .then(() => { 
+      .then(() => {
         const sp1 = document.createElement("span");
-        sp1.textContent = "Done!";
+        sp1.textContent = "Done";
         document.getElementById(option.key).replaceWith(sp1);
         document.getElementById(option.key+"input").remove();
         const sp2 = document.createElement("span");
@@ -281,7 +281,7 @@ function onClickMarkComplete(event) {
   }
   var formData = new FormData(event.target, event.submitter);
   const button = formData.get('progressButton');
-  console.log(button);
+  // console.log(button);
   var option = {
     "key": 'dt_setup_wizard_progress',
     "value":parseOptionValue(button)
@@ -291,6 +291,9 @@ function onClickMarkComplete(event) {
   .then((data) => {
     console.log('Set option', data);
     showMessage(`Set option: ${option.key}`, 'success');
+    if (event.submitter.dataset.next) {
+      window.location.href = event.submitter.dataset.next;
+    }
   })
   .catch((error) => {
     console.error('Error setting option', error);
