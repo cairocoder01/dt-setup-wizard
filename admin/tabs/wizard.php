@@ -4,6 +4,31 @@ function is_json_object( $array ) {
     json_encode( $array );
     return json_last_error() === JSON_ERROR_NONE;
 }
+function mark_complete_button( $step_name ) {
+    $progress_value = get_option( 'dt_setup_wizard_progress' );
+    if ( $progress_value[$step_name] == 'true' ) {
+        $progress_value[$step_name] = false;
+    } else {
+        $progress_value[$step_name] = true;
+    }
+    ?>
+  <form onsubmit="onClickMarkComplete(event)">
+        <button type="submit" name="progressButton" value="<?php echo esc_html( json_encode( $progress_value ) )  ?>">
+        <?php
+        if ( $progress_value[$step_name] ) {
+            ?>
+              Mark as Complete
+            <?php
+        } else {
+            ?>
+              Mark as Incomplete
+            <?php
+        }
+        ?>
+        </button>
+      </form>
+    <?php
+}
 function is_plugin_installed( $slug ) {
     $plugins = array_keys( get_plugins() );
     $is_installed = false;
@@ -17,11 +42,51 @@ function is_plugin_installed( $slug ) {
 }
 function is_plugin_activated( $slug ) {
     $active_plugins = get_option( 'active_plugins' );
-    foreach ( $active_plugins as &$plugin ){
+    foreach ( $active_plugins as $plugin ){
         if ( str_contains( $plugin, $slug ) ){
             return true;
         }
     }
+}
+function step_status( $step ) {
+    $checkmark = true;
+    $db_value = get_option( 'dt_setup_wizard_progress' );
+
+    if ( $db_value[$step['name']] == 'true' ) {
+        return true;
+    } elseif ( $step['config']['options'] ) {
+        $options = $step['config']['options'];
+        foreach ( $options as $option ) {
+            $key = $option['key'];
+            $value = $option['value'];
+            $db_value = get_option( $key );
+            if ( $value != $db_value ) {
+                $checkmark = false;
+                break;
+            }
+        }
+    } elseif ( $step['config']['plugins'] ) {
+        $plugins = $step['config']['plugins'];
+        foreach ( $plugins as $plugin ) {
+            if ( !is_plugin_activated( $plugin['slug'] ) ) {
+                $checkmark = false;
+                break;
+            }
+        }
+    } elseif ( $step['config']['users'] ) {
+        $checkmark = false;
+        $users = $step['config']['users'];
+        foreach ( $users as $user ) {
+            if ( username_exists( $user['username'] ) ) {
+                $checkmark = true;
+                break;
+            }
+        }
+    } else {
+        $checkmark = false;
+    }
+
+    return $checkmark;
 }
 /**
  * Class Disciple_Tools_Setup_Wizard_Tab
@@ -73,11 +138,13 @@ class Disciple_Tools_Setup_Wizard_Tab
         <h1><?php echo esc_html( $setting['steps'][$step -1]['name'] )?></h1>
         <?php echo wp_kses_post( $parsedown->text( $setting['steps'][$step -1]['description'] ) )?>
         <?php if ( $setting['steps'][$step -1]['config']['options'] ){//key, value
-            $this->load_options( $setting['steps'][$step -1]['config']['options'], $step );
+            $this->load_options( $setting['steps'][$step -1]['config']['options'], $setting['steps'][$step -1] );
         } elseif ( $setting['steps'][$step -1]['config']['plugins'] ){//key, value
-            $this->load_plugins( $setting['steps'][$step -1]['config']['plugins'], $step );
+            $this->load_plugins( $setting['steps'][$step -1]['config']['plugins'], $setting['steps'][$step -1] );
         } elseif ( $setting['steps'][$step -1]['config']['users'] ){//key, value
-            $this->load_users( $setting['steps'][$step -1]['config']['users'], $step );
+            $this->load_users( $setting['steps'][$step -1]['config']['users'], $setting['steps'][$step -1] );
+        } else {
+            $this->load_manual( $setting['steps'][$step -1] );
         }
         ?>
     <br>
@@ -98,11 +165,19 @@ class Disciple_Tools_Setup_Wizard_Tab
         <?php
         foreach ( $setting['steps'] as $key =>$item )
         {
+            $step_status = step_status( $item );
             $key++;
             ?>
-                <li>
-                  <a href="<?php echo esc_attr( $link ) . esc_html( $key ) ?>"><?php echo esc_html( $item['name'] ) ?></a>
-                </li>
+              <li>
+                <a href="<?php echo esc_attr( $link ) . esc_html( $key ) ?>"><?php echo esc_html( $item['name'] ) ?></a>
+                <?php
+                if ( $step_status ) {
+                    ?>
+                  <span>&#10003;</span>
+                    <?php
+                }
+                ?>
+              </li>
             <?php
         }
         ?>
@@ -113,15 +188,15 @@ class Disciple_Tools_Setup_Wizard_Tab
     }
     public function load_options( $options, $step ) {
         ?>
-      <form onsubmit="onClickOptionButton(event)">
-      <table class="widefat striped">
-            <thead>
-              <tr>
-                <th colspan="3"><?php echo 'Set Options' ?></th>
-              </tr>
-            </thead>
-            <tbody>
-            <?php
+    <form onsubmit="onClickOptionButton(event)">
+    <table class="widefat striped">
+          <thead>
+            <tr>
+              <th colspan="4"><?php echo 'Set Options' ?></th>
+            </tr>
+          </thead>
+          <tbody>
+          <?php
             foreach ( $options as $option ){
                 $key = $option['key'];
                 $value = $option['value'];
@@ -133,47 +208,58 @@ class Disciple_Tools_Setup_Wizard_Tab
                     $db_value = json_encode( $db_value, JSON_PRETTY_PRINT );
                 }
                 ?>
-              <tr>
-                <td>
+            <tr>
+              <td>
                 <?php echo esc_html( $key ); ?>
-                </td>
-                <td>
-                <?php echo esc_html( $db_value ); ?>
-                </td>
-                <td>
+              </td>
+              <td>
+                <span id="<?php echo esc_html( $key ) ?>value"><?php echo esc_html( $db_value ); ?></span>
+              </td>
                 <?php
                 if ( $value == $db_value ){
+                    ?>
+                <td>
+                </td>
+                <td>
+                    <?php
                     echo 'Done!';
+                    ?>
+                </td>
+                    <?php
                 } else {
+                    ?>
+              <td>
+                    <?php
                     if ( $value[0] == '{' ) {?>
-                    <textarea id="value" name=<?php echo esc_html( $key ) ?>><?php echo esc_attr( $value ) ?></textarea>
-                        <?php
+                  <textarea id="<?php echo esc_html( $key ) ?>input" name=<?php echo esc_html( $key ) ?>><?php echo esc_attr( $value ) ?></textarea>
+                          <?php
                     } else {
                         ?>
-                    <input type="text" name=<?php echo esc_html( $key ) ?> value="<?php echo esc_html( $value ) ?>" />
+                  <input type="text"id="<?php echo esc_html( $key ) ?>input"  name=<?php echo esc_html( $key ) ?> value="<?php echo esc_html( $value ) ?>" />
                         <?php
                     }
                     ?>
-                  </td>
-                  <td>
-                  <button type="submit" name="button" value="<?php echo esc_html( $key )  ?>">
-                  Update
-                  </button>
+              </td>
+              <td>
+                <button id="<?php echo esc_html( $key ) ?>" type="submit" name="button" value="<?php echo esc_html( $key )  ?>">
+                Update
+                </button>
                     <?php
                 }
                 ?>
-                </td>
-              </tr>
+              </td>
+            </tr>
                 <?php
             }
             ?>
-            </tbody>
-          </table>
-          <button type="submit" name="button" value="all">
-          Update All
-          </button>
-          </form>
-          <?php
+          </tbody>
+        </table>
+        <button type="submit" name="button" value="all">
+        Update All
+        </button>
+        </form>
+        <?php
+        mark_complete_button( $step['name'] );
     }
     public function load_plugins( $plugins, $step ) {
         ?>
@@ -235,70 +321,77 @@ class Disciple_Tools_Setup_Wizard_Tab
         </button>
         </form>
         <?php
+        mark_complete_button( $step['name'] );
     }
-    public function load_users( $options, $step ) {
+    public function load_users( $users, $step ) {
         ?>
-  <form onsubmit="onClickOptionButton(event)">
-  <table class="widefat striped">
-        <thead>
-          <tr>
-            <th colspan="3"><?php echo 'Set Options' ?></th>
-          </tr>
-        </thead>
-        <tbody>
+<form onsubmit="onClickUserButton(event)">
+<table class="widefat striped">
+      <thead>
+        <tr>
+          <th><?php echo 'Set Users' ?></th>
+          <td>
+          <?php echo esc_html( 'Email' ); ?>
+          </td>
+          <td>
+          <?php echo esc_html( 'Display Name' ); ?>
+          </td>
+          <td colspan="2">
+          <?php echo esc_html( 'Roles' ); ?>
+          </td>
+        </tr>
+      </thead>
+      <tbody>
         <?php
-        foreach ( $options as $option ){
-            $key = $option['key'];
-            $value = $option['value'];
-            $db_value = get_option( $key );
-            if ( gettype( $value ) == 'array' ){
-                $value = json_encode( $value, JSON_PRETTY_PRINT );
-            }
-            if ( gettype( $db_value ) == 'array' ){
-                $db_value = json_encode( $db_value, JSON_PRETTY_PRINT );
-            }
+        foreach ( $users as $user ){
+            $username = $user['username'];
+            $email = $user['email'];
+            $display_name = $user['displayName'];
+            //$roles = json_encode( $user['roles'] );
+            $roles = implode( ', ', $user['roles'] );
             ?>
-          <tr>
-            <td>
-            <?php echo esc_html( $key ); ?>
-            </td>
-            <td>
-            <?php echo esc_html( $db_value ); ?>
-            </td>
-            <td>
+        <tr>
+          <td>
+            <?php echo esc_html( $username ); ?>
+          </td>
+          <td>
+            <?php echo esc_html( $email ); ?>
+          </td>
+          <td>
+            <?php echo esc_html( $display_name ); ?>
+          </td>
+          <td>
+            <?php echo esc_html( $roles ); ?>
+          </td>
+          <td>
             <?php
-            if ( $value == $db_value ){
+            if ( username_exists( $username ) ){
                 echo 'Done!';
             } else {
-                if ( $value[0] == '{' ) {?>
-                <textarea id="value" name=<?php echo esc_html( $key ) ?>><?php echo esc_attr( $value ) ?></textarea>
-                    <?php
-                } else {
-                    ?>
-                <input type="text" name=<?php echo esc_html( $key ) ?> value="<?php echo esc_html( $value ) ?>" />
-                    <?php
-                }
                 ?>
-              </td>
-              <td>
-              <button type="submit" name="button" value="<?php echo esc_html( $key )  ?>">
-              Update
+              <input type="hidden" name="<?php echo esc_html( $username ) ?>" id="<?php echo esc_html( $username )  ?>hidden" value="<?php echo esc_html( json_encode( $user ) ) ?>" />
+              <button type="submit" name="button" id="<?php echo esc_html( $username )  ?>" value="<?php echo esc_html( $username )  ?>">
+              Add User
               </button>
                 <?php
             }
             ?>
-            </td>
-          </tr>
+          </td>
+        </tr>
             <?php
         }
         ?>
-        </tbody>
-      </table>
-      <button type="submit" name="button" value="all">
-      Update All
-      </button>
-      </form>
+      </tbody>
+    </table>
+    <button type="submit" name="button" value="all">
+    Add All
+    </button>
+    </form>
         <?php
+        mark_complete_button( $step['name'] );
+    }
+    public function load_manual( $step ) {
+        mark_complete_button( $step['name'] );
     }
 }
 ?>

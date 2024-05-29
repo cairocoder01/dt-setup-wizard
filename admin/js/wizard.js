@@ -164,6 +164,10 @@ function createUser(user) {
       if (data && Number.isInteger(data)) {
         console.log('Created user', data);
         showMessage(`Created user: ${user.username} (#${data})`, 'success');
+        const sp1 = document.createElement("span");
+        sp1.textContent = "Done!";
+        document.getElementById(user.username).replaceWith(sp1);
+        document.getElementById(user.username+"hidden").remove();
       } else {
         throw data;
       }
@@ -173,10 +177,38 @@ function createUser(user) {
       showMessage(`Error creating user: ${user.username}`, 'error');
     });
 }
+function onClickUserButton(event) {
+  if (event){
+    event.preventDefault();
+  }
+  var formData = new FormData(event.target, event.submitter);
+  const button = formData.get('button');
+  console.log(formData.get(button));
+  if (button !== 'all') {
+    try {
+      createUser(
+        parseOptionValue(formData.get(button))
+      );
+    } catch (error) {
+      console.error(error);
+      showMessage('Error creating user', 'error');
+    }
+  } else {
+    try {
+      console.log(formData.entries());
+      formData.entries()
+      .filter((entry) => entry[0] !== 'button')
+      .forEach((user) => createUser(JSON.parse(user[1])));
+    } catch (error) {
+      console.error(error);
+      showMessage('Error creating user', 'error');
+    }
+  }
+}
 function setOption(option) {
   console.log('setting option: ', option);
   showMessage(`Setting option: ${option.key}`);
-  sendApiRequest('/option', option, 'disciple-tools-setup-wizard/v1')
+  return sendApiRequest('/option', option, 'disciple-tools-setup-wizard/v1')
     .then((data) => {
       console.log('Set option', data);
       showMessage(`Set option: ${option.key}`, 'success');
@@ -200,13 +232,21 @@ function onClickOptionButton(event) {
   var formData = new FormData(event.target, event.submitter);
   const button = formData.get('button');
   if (button !== 'all') {
-  	try {
+    try {
       setOption(
         {
           "key":button,
           "value":parseOptionValue(formData.get(button))
         }
-      );
+      )
+      .then(() => { 
+        const sp1 = document.createElement("span");
+        sp1.textContent = "Done!";
+        document.getElementById(option.key).replaceWith(sp1);
+        document.getElementById(option.key+"input").remove();
+        const sp2 = document.createElement("span");
+        sp2.textContent = option.value;
+        document.getElementById(option.key+"value").replaceWith(sp2); });
     } catch (error) {
       console.error(error);
       showMessage('Error setting option', 'error');
@@ -220,12 +260,42 @@ function onClickOptionButton(event) {
         key: entry[0],
         value: entry[1],
       }))
-      .forEach((option) => setOption(option));
+      .forEach((option) => setOption(option)
+      .then(() => { 
+        const sp1 = document.createElement("span");
+        sp1.textContent = "Done!";
+        document.getElementById(option.key).replaceWith(sp1);
+        document.getElementById(option.key+"input").remove();
+        const sp2 = document.createElement("span");
+        sp2.textContent = option.value;
+        document.getElementById(option.key+"value").replaceWith(sp2); }));
     } catch (error) {
       console.error(error);
       showMessage('Error setting option', 'error');
     }
   }
+}
+function onClickMarkComplete(event) {
+  if (event){
+    event.preventDefault();
+  }
+  var formData = new FormData(event.target, event.submitter);
+  const button = formData.get('progressButton');
+  console.log(button);
+  var option = {
+    "key": 'dt_setup_wizard_progress',
+    "value":parseOptionValue(button)
+  }
+  showMessage(`Setting option: ${option.key}`);
+  sendApiRequest('/option', option, 'disciple-tools-setup-wizard/v1')
+  .then((data) => {
+    console.log('Set option', data);
+    showMessage(`Set option: ${option.key}`, 'success');
+  })
+  .catch((error) => {
+    console.error('Error setting option', error);
+    showMessage(`Error setting option: ${option.key}`, 'error');
+  });
 }
 function advancedConfigSubmit(evt) {
     if (evt) {
@@ -290,6 +360,23 @@ function saveConfig(config) {
           "value": config
       }
   setOption(option);
+  var progress = {};
+    for (step of config.steps) {
+      progress[step.name] = false;
+    }
+    console.log(progress);
+    var progressOption = {
+      "key": "dt_setup_wizard_progress",
+      "value": progress
+    }
+    console.log(progressOption);
+    sendApiRequest('/option', progressOption, 'disciple-tools-setup-wizard/v1')
+    .then((data) => {
+      console.log('Set option', data);
+    })
+    .catch((error) => {
+      console.error('Error setting option', error);
+    });
 }
 function createMessageLi(content, context) {
   const message = document.createElement('li');
