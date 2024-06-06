@@ -233,12 +233,11 @@ function onClickOptionButton(event) {
   const button = formData.get('button');
   if (button !== 'all') {
     try {
-      setOption(
-        {
-          "key":button,
-          "value":parseOptionValue(formData.get(button))
-        }
-      )
+      const option = {
+        "key":button,
+        "value":parseOptionValue(formData.get(button))
+      };
+      setOption(option)
       .then(() => {
         const sp1 = document.createElement("span");
         sp1.textContent = "Done";
