@@ -200,7 +200,7 @@ class Disciple_Tools_Setup_Wizard_Tab_Settings
           <a href="javascript:copySample()" class="copy-sample">
 
             <img class="dt-icon" src="<?php echo esc_html( get_template_directory_uri() . '/dt-assets/images/duplicate.svg' ) ?>"/>
-            <?php echo __( 'Copy sample to config', 'disciple-tools-setup-wizard' ) ?>
+            <?php echo esc_html( __( 'Copy sample to config', 'disciple-tools-setup-wizard' ) ) ?>
           </a>
         <pre><code id="sample-config"><?php echo json_encode( $sample, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) ?></code></pre>
         </td>
