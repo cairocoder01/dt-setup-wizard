@@ -91,7 +91,7 @@ class Disciple_Tools_Setup_Wizard_Menu {
         if ( isset( $_GET['tab'] ) ) {
             $tab = sanitize_key( wp_unslash( $_GET['tab'] ) );
         } else {
-            $tab = 'general';
+            $tab = 'wizard';
         }
 
         $link = 'admin.php?page='.$this->token.'&tab=';

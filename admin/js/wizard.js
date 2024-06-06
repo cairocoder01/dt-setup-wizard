@@ -24,7 +24,7 @@ function onInstallClick(event) {
     event.preventDefault();
   }
   var formData = new FormData(event.target, event.submitter);
-  console.log(event.submitter);
+  // console.log(event.submitter);
   //event.target.parentNode.removeChild(event.target);
   //var buttons = document.getElementsByTagName('button');
   var button = formData.get('button');
@@ -48,8 +48,8 @@ function onInstallClick(event) {
   }
 }
 function installPlugin(plugin, nonce) {
-  console.log(plugin);
-  console.log(nonce);
+  // console.log(plugin);
+  // console.log(nonce);
   try {
     plugin = JSON.parse(plugin);
   } catch (error) {
@@ -69,7 +69,7 @@ function installBySlug(plugin, nonce) {
   }
   const slugFormData = new FormData();
   buildFormData(slugFormData, data);
-  console.log('installing: ' + plugin['slug']);
+  // console.log('installing: ' + plugin['slug']);
   showMessage(`Installing: ${plugin['slug']}`);
   return fetch(`/wp-admin/admin-ajax.php`, {
     method: 'POST',
@@ -90,13 +90,13 @@ function installByUrl(pluginUrl) {
   const slug = isDtPlugin
     ? pluginUrl.split('/')[4]
     : pluginUrl;
-  console.log('installing: ' + slug);
+  // console.log('installing: ' + slug);
   showMessage(`Installing: ${slug}`);
   if (isDtPlugin) {
     sendApiRequest('/plugin-install', { download_url: pluginUrl }, 'dt-admin-settings')
       .then((success) => {
         if (success) {
-          console.log('Successfully installed ' + slug);
+          // console.log('Successfully installed ' + slug);
           showMessage(`Installed ${slug}`, 'success');
           setTimeout(() => { activate(slug) }, 500);
           //activate(slug);
@@ -122,7 +122,7 @@ function installByUrl(pluginUrl) {
       }
     }).then((response) => response.json())
       .then((success) => {
-        console.log('Successfully installed ' + slug, success);
+        // console.log('Successfully installed ' + slug, success);
         const sp1 = document.createElement("span");
         sp1.textContent = "Active";
         document.getElementById(slug).replaceWith(sp1);
@@ -136,12 +136,12 @@ function installByUrl(pluginUrl) {
   }
 }
 function activate(pluginSlug) {
-  console.log('activating: ' + pluginSlug);
+  // console.log('activating: ' + pluginSlug);
   showMessage(`Activating: ${pluginSlug}`);
   sendApiRequest('/plugin-activate', { plugin_slug: pluginSlug }, 'dt-admin-settings')
     .then(function(success) {
       if (success) {
-        console.log('Successfully activated ' + pluginSlug);
+        // console.log('Successfully activated ' + pluginSlug);
         const sp1 = document.createElement("span");
         sp1.textContent = "Active";
         document.getElementById(pluginSlug).replaceWith(sp1);
@@ -157,12 +157,12 @@ function activate(pluginSlug) {
     });
 }
 function createUser(user) {
-  console.log('creating user: ', user);
+  // console.log('creating user: ', user);
   showMessage(`Creating user: ${user.username}`);
   sendApiRequest('/user', user, 'disciple-tools-setup-wizard/v1')
     .then((data) => {
       if (data && Number.isInteger(data)) {
-        console.log('Created user', data);
+        // console.log('Created user', data);
         showMessage(`Created user: ${user.username} (#${data})`, 'success');
         const sp1 = document.createElement("span");
         sp1.textContent = "Done";
@@ -183,7 +183,7 @@ function onClickUserButton(event) {
   }
   var formData = new FormData(event.target, event.submitter);
   const button = formData.get('button');
-  console.log(formData.get(button));
+  // console.log(formData.get(button));
   if (button !== 'all') {
     try {
       createUser(
@@ -195,7 +195,7 @@ function onClickUserButton(event) {
     }
   } else {
     try {
-      console.log(formData.entries());
+      // console.log(formData.entries());
       formData.entries()
       .filter((entry) => entry[0] !== 'button')
       .forEach((user) => createUser(JSON.parse(user[1])));
@@ -206,11 +206,11 @@ function onClickUserButton(event) {
   }
 }
 function setOption(option) {
-  console.log('setting option: ', option);
+  // console.log('setting option: ', option);
   showMessage(`Setting option: ${option.key}`);
   return sendApiRequest('/option', option, 'disciple-tools-setup-wizard/v1')
     .then((data) => {
-      console.log('Set option', data);
+      // console.log('Set option', data);
       showMessage(`Set option: ${option.key}`, 'success');
     })
     .catch((error) => {
@@ -253,7 +253,7 @@ function onClickOptionButton(event) {
     }
   } else {
     try {
-      console.log(formData.entries());
+      // console.log(formData.entries());
       formData.entries()
       .filter((entry) => entry[0] !== 'button')
       .map((entry) => ({
@@ -289,7 +289,7 @@ function onClickMarkComplete(event) {
   showMessage(`Setting option: ${option.key}`);
   sendApiRequest('/option', option, 'disciple-tools-setup-wizard/v1')
   .then((data) => {
-    console.log('Set option', data);
+    // console.log('Set option', data);
     showMessage(`Set option: ${option.key}`, 'success');
     if (event.submitter.dataset.next) {
       window.location.href = event.submitter.dataset.next;
@@ -359,23 +359,25 @@ function settingsConfigSubmit(evt) {
 }
 function saveConfig(config) {
   var option = {
-          "key": "dt_setup_wizard_config",
-          "value": config
-      }
+    "key": "dt_setup_wizard_config",
+    "value": config,
+    "overwrite": true,
+  };
   setOption(option);
   var progress = {};
-    for (step of config.steps) {
-      progress[step.name] = false;
-    }
-    console.log(progress);
-    var progressOption = {
-      "key": "dt_setup_wizard_progress",
-      "value": progress
-    }
-    console.log(progressOption);
-    sendApiRequest('/option', progressOption, 'disciple-tools-setup-wizard/v1')
+  for (step of config.steps) {
+    progress[step.name] = false;
+  }
+  // console.log(progress);
+  var progressOption = {
+    "key": "dt_setup_wizard_progress",
+    "value": progress,
+    "overwrite": true,
+  }
+  // console.log(progressOption);
+  sendApiRequest('/option', progressOption, 'disciple-tools-setup-wizard/v1')
     .then((data) => {
-      console.log('Set option', data);
+      // console.log('Set option', data);
     })
     .catch((error) => {
       console.error('Error setting option', error);
@@ -420,9 +422,27 @@ function toggleLogContainer(evt) {
 function onExpandableTextareaInput({ target:elm }){
   // make sure the input event originated from a textarea and it's desired to be auto-expandable
   if( !elm.classList.contains('auto-expand') || !elm.nodeName == 'TEXTAREA' ) return
-  if (elm.scrollHeight > elm.offsetHeight) {
-    elm.style.minHeight = `calc(${elm.scrollHeight}px + 2rem)`;
+
+  elm.style.height = 'auto';
+  elm.style.height = `calc(${elm.scrollHeight}px + 2rem)`;
+}
+
+function copySample() {
+  const sample = document.getElementById('sample-config');
+  const configTextarea = document.getElementById('config');
+  if (sample && configTextarea) {
+    config.value = sample.innerHTML;
   }
 }
+
 // global delegated event listener
 document.addEventListener('input', onExpandableTextareaInput)
+
+window.onload = function() {
+  const expandEls = document.querySelectorAll('.auto-expand');
+  if (expandEls && expandEls.length) {
+    for (const expandEl of expandEls) {
+      onExpandableTextareaInput({ target: expandEl });
+    }
+  }
+};

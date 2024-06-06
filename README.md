@@ -1,28 +1,30 @@
-![Build Status](https://github.com/cairocoder01/dt-setup-wizard/actions/workflows/ci.yml/badge.svg?branch=master)
-
 ![Plugin Banner](https://github.com/cairocoder01/dt-setup-wizard/raw/master/documentation/banner.png)
+
+![Build Status](https://github.com/cairocoder01/dt-setup-wizard/actions/workflows/ci.yml/badge.svg?branch=master)
 
 # Disciple.Tools - Setup Wizard
 
-Kickstart your Disciple.Tools new site setup with a streamlined setup wizard
+Speed up your new site setup process through a multi-step wizard interface.
 
 ## Purpose
 
-Purpose purpose purpose purpose purpose purpose purpose purpose purpose purpose purpose
-Purpose purpose purpose purpose purpose purpose purpose purpose purpose purpose purpose
-
-Purpose purpose purpose purpose purpose purpose purpose purpose purpose purpose purpose
-Purpose purpose purpose purpose purpose purpose purpose purpose purpose purpose purpose
+Streamline the setup of new sites by creating a JSON configuration that will generate a multi-step
+wizard process. Go through each step and optionally implement all, some, or none of the options in
+the given step.
 
 ## Usage
 
 #### Will Do
 
-- Takes a JSON site configuration and automates install of plugins, adding users, and setting WP options
+- Generate multi-step wizard interface from JSON configuration
+- Show wizard step to add users
+- Show wizard step to install/activate plugins
+- Show wizard step to set WP options
+- Show wizard step with markdown formatted text, including external links
 
 #### Will Not Do
 
-- Friendly wizard UI for non-technical users (future feature)
+- Friendly UI to generate JSON configuration
 
 ## Requirements
 
@@ -36,13 +38,33 @@ Purpose purpose purpose purpose purpose purpose purpose purpose purpose purpose 
 ## Contribution
 
 Contributions welcome. You can report issues and bugs in the
-[Issues](https://github.com/cairocoder01/disciple-tools-setup-wizard/issues) section of the repo. You can present ideas
-in the [Discussions](https://github.com/cairocoder01/disciple-tools-setup-wizard/discussions) section of the repo. And
-code contributions are welcome using the [Pull Request](https://github.com/cairocoder01/disciple-tools-setup-wizard/pulls)
+[Issues](https://github.com/cairocoder01/dt-setup-wizard/issues) section of the repo. You can present ideas
+in the [Discussions](https://github.com/cairocoder01/dt-setup-wizard/discussions) section of the repo. And
+code contributions are welcome using the [Pull Request](https://github.com/cairocoder01/dt-setup-wizard/pulls)
 system for git. For a more details on contribution see the
-[contribution guidelines](https://github.com/cairocoder01/disciple-tools-setup-wizard/blob/master/CONTRIBUTING.md).
+[contribution guidelines](https://github.com/cairocoder01/dt-setup-wizard/blob/master/CONTRIBUTING.md).
 
 
 ## Screenshots
 
-![screenshot](documentation/community/starter-banners/banner-blue-green.png)
+| Step Type - Options |
+| ------------------- |
+| ![wizard-step-options.png](documentation%2Fscreenshots%2Fwizard-step-options.png)|
+
+| Step Type - Text |
+|------------------|
+|![wizard-step-text.png](documentation%2Fscreenshots%2Fwizard-step-text.png)|
+
+| Step Type - Plugins |
+|---------------------|
+|![wizard-step-plugins.png](documentation%2Fscreenshots%2Fwizard-step-plugins.png)|
+
+| Step Type - Users |
+|-------------------|
+|![wizard-step-users.png](documentation%2Fscreenshots%2Fwizard-step-users.png)|
+
+## Credits
+
+- Project icon
+  - “Wizard Hat” icon by mangunkarsa, from thenounproject.com
+  - “config” icon by empat, from thenounproject.com

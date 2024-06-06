@@ -7,9 +7,9 @@ msgid "Disciple.Tools - Setup Wizard is intended to help developers and integrat
 msgstr ""
 
 # Author URI of the plugin
-msgid "https://github.com/DiscipleTools"
+msgid "https://github.com/cairocoder01"
 msgstr ""
 
 #. Plugin URI of the plugin
-msgid "https://github.com/DiscipleTools/disciple-tools-setup-wizard"
+msgid "https://github.com/cairocoder01/dt-setup-wizard"
 msgstr ""

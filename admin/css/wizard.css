@@ -6,30 +6,12 @@
 .wizard-step-progress span.icon {
     border-radius: 50%;
     color: gray;
-    padding: 1px;
     font-weight: bold;
     border: solid 1px currentColor;
     display: inline-block;
-    height: 0.8rem;
-    width: 0.8rem;
+    height: 12px;
+    width: 12px;
     position: relative;
-}
-.wizard-step-progress span.icon:before {
-    content: ' ';
-    display: block;
-    left: 1px;
-    width: .8rem;
-    height: 0.8rem;
-    top: -1px;
-    position: absolute;
-}
-.wizard-step-progress span.icon.complete {
-    background-color: forestgreen;
-    color: #fff;
-    border-color: forestgreen;
-}
-.wizard-step-progress span.icon.complete:before {
-    content: '✓';
 }
 
 .step-navigation {
@@ -69,6 +51,14 @@
     content: '✓';
 }
 
+/* ==== Settings ==== */
+.widefat a.copy-sample {
+    font-weight: bold;
+    text-decoration: underline;
+}
+.widefat a.copy-sample img {
+    height: 1rem;
+}
 /* ==== Advanced ==== */
 .tab-advanced label {
     display: block;

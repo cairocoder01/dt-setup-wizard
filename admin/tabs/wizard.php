@@ -52,11 +52,11 @@ function step_status( $step ) {
             }
         }
     } elseif ( $step['config']['users'] ) {
-        $complete = false;
+        $complete = true;
         $users = $step['config']['users'];
         foreach ( $users as $user ) {
-            if ( username_exists( $user['username'] ) ) {
-                $complete = true;
+            if ( !username_exists( $user['username'] ) ) {
+                $complete = false;
                 break;
             }
         }
@@ -145,8 +145,12 @@ class Disciple_Tools_Setup_Wizard_Tab
             $key++;
             ?>
         <li>
-          <span class="icon <?php echo $step_status ? 'complete' : '' ?>"></span>
-          <a href="<?php echo esc_attr( $link ) . esc_html( $key ) ?>"><?php echo esc_html( $item['name'] ) ?></a>
+            <?php if ( $step_status ) : ?>
+              <img class="dt-icon" src="<?php echo esc_html( get_template_directory_uri() . '/dt-assets/images/verified.svg' ) ?>"/>
+            <?php else : ?>
+              <span class="icon <?php echo $step_status ? 'complete' : '' ?>"></span>
+            <?php endif; ?>
+            <a href="<?php echo esc_attr( $link ) . esc_html( $key ) ?>"><?php echo esc_html( $item['name'] ) ?></a>
         </li>
       <?php endforeach; ?>
     </ol>

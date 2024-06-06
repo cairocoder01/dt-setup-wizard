@@ -1,16 +1,16 @@
 <?php
 /**
  * Plugin Name: Disciple.Tools - Setup Wizard
- * Plugin URI: https://github.com/DiscipleTools/disciple-tools-setup-wizard
- * Description: Disciple.Tools - Setup Wizard is intended to help developers and integrator jumpstart their extension of the Disciple.Tools system.
+ * Plugin URI: https://github.com/cairocoder01/dt-setup-wizard
+ * Description: Disciple.Tools - Setup Wizard helps speed up your new site setup process through a multi-step wizard interface.
  * Text Domain: disciple-tools-setup-wizard
  * Domain Path: /languages
- * Version:  0.2.1
+ * Version:  1.0.0
  * Author URI: https://github.com/cairocoder01
- * GitHub Plugin URI: https://github.com/cairocoder01/disciple-tools-setup-wizard
+ * GitHub Plugin URI: https://github.com/cairocoder01/dt-setup-wizard
  * Requires at least: 4.7.0
  * (Requires 4.7+ because of the integration of the REST API at 4.7 and the security requirements of this milestone version.)
- * Tested up to: 6.1.1
+ * Tested up to: 6.5.4
  *
  * @package Disciple_Tools
  * @link    https://github.com/DiscipleTools
