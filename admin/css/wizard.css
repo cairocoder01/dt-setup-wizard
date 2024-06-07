@@ -1,8 +1,30 @@
 /* ==== Wizard Steps ==== */
+.tab-wizard .description ul {
+    padding: revert;
+    list-style: revert;
+}
+.tab-wizard .description blockquote {
+    background: #f9f9f9;
+    border-left: 10px solid #ccc;
+    margin: 1.5em 10px 1.5em 0px;
+    padding: 0.5em 10px;
+    quotes: "\201C""\201D""\2018""\2019";
+}
+.tab-wizard .description blockquote:before {
+    color: #ccc;
+    content: open-quote;
+    font-size: 4em;
+    line-height: 0.1em;
+    margin-right: 0.25em;
+    vertical-align: -0.4em;
+}
 .wizard-step tfoot td {
     text-align: right;
 }
 
+.wizard-step-progress li.active {
+    font-weight: bold;
+}
 .wizard-step-progress span.icon {
     border-radius: 50%;
     color: gray;

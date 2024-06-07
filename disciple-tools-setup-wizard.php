@@ -5,7 +5,7 @@
  * Description: Disciple.Tools - Setup Wizard helps speed up your new site setup process through a multi-step wizard interface.
  * Text Domain: disciple-tools-setup-wizard
  * Domain Path: /languages
- * Version:  1.0.0
+ * Version:  1.0.1
  * Author URI: https://github.com/cairocoder01
  * GitHub Plugin URI: https://github.com/cairocoder01/dt-setup-wizard
  * Requires at least: 4.7.0

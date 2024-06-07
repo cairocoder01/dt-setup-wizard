@@ -90,7 +90,7 @@ class Disciple_Tools_Setup_Wizard_Tab
           <a href='admin.php?page=disciple_tools_setup_wizard&tab=settings'>here</a>.
         </div>
         <?php } else { ?>
-        <div class="wrap tab-advanced">
+        <div class="wrap tab-wizard">
           <div id="poststuff">
             <div id="post-body" class="metabox-holder columns-2">
               <div id="post-body-content">
@@ -119,7 +119,7 @@ class Disciple_Tools_Setup_Wizard_Tab
         ?>
 
         <h1><?php echo esc_html( $step['name'] )?></h1>
-        <?php echo wp_kses_post( $parsedown->text( $step['description'] ) )?>
+        <div class="description"><?php echo wp_kses_post( $parsedown->text( $step['description'] ) )?></div>
 
         <?php
         if ( $step_config['options'] ){//key, value
@@ -137,14 +137,15 @@ class Disciple_Tools_Setup_Wizard_Tab
 
     public function right_column() {
         $link = 'admin.php?page=disciple_tools_setup_wizard&tab=wizard&step=';
+        $current_step = $this->config['steps'][$this->step - 1];
         ?>
       <h2>Steps:</h2>
       <ol class="wizard-step-progress">
-        <?php foreach ( $this->config['steps'] as $key =>$item ):
+        <?php foreach ( $this->config['steps'] as $key => $item ):
             $step_status = step_status( $item );
             $key++;
             ?>
-        <li>
+        <li class="<?php echo $key === $this->step ? 'active' : '' ?>">
             <?php if ( $step_status ) : ?>
               <img class="dt-icon" src="<?php echo esc_html( get_template_directory_uri() . '/dt-assets/images/verified.svg' ) ?>"/>
             <?php else : ?>
