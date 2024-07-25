@@ -1,7 +1,9 @@
 function sendApiRequest(endpoint, data, basePath) {
   const formData = new FormData();
   buildFormData(formData, data);
-  return fetch(`/wp-json/${basePath ?? 'dt-core/v1'}${endpoint}`, {
+  // this URL assumes it is run from /wp-admin/something
+  // Doing this relative for multi-site running on subdirectories
+  return fetch(`../wp-json/${basePath ?? 'dt-core/v1'}${endpoint}`, {
     method: 'POST',
     body: formData,
     headers: {
