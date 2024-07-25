@@ -32,7 +32,7 @@ function step_status( $step ) {
 
     if ( $db_value[$step['name']] == 'true' ) {
         return true;
-    } elseif ( $step['config']['options'] ) {
+    } elseif ( isset( $step['config']['options'] ) ) {
         $options = $step['config']['options'];
         foreach ( $options as $option ) {
             $key = $option['key'];
@@ -43,7 +43,7 @@ function step_status( $step ) {
                 break;
             }
         }
-    } elseif ( $step['config']['plugins'] ) {
+    } elseif ( isset( $step['config']['plugins'] ) ) {
         $plugins = $step['config']['plugins'];
         foreach ( $plugins as $plugin ) {
             if ( !is_plugin_activated( $plugin['slug'] ) ) {
@@ -51,7 +51,7 @@ function step_status( $step ) {
                 break;
             }
         }
-    } elseif ( $step['config']['users'] ) {
+    } elseif ( isset( $step['config']['users'] ) ) {
         $complete = true;
         $users = $step['config']['users'];
         foreach ( $users as $user ) {
